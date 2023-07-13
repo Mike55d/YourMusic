@@ -27,7 +27,7 @@ const useStyles = makeStyles({
     fontWeight: 700,
     color: "white",
     "@media (max-width: 780px)": {
-      fontSize: "8vw",
+      fontSize: "10vw",
       display: "inline-block",
       width: "100%",
     },
@@ -47,6 +47,10 @@ const useStyles = makeStyles({
     "@media (min-width: 900px)": {
       marginTop: 60,
       marginBottom: 60,
+    },
+    "@media (max-width: 899px)": {
+      marginTop: 45,
+      marginBottom: 45,
     },
   },
   containerButtonLogin: {
