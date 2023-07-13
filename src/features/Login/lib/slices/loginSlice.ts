@@ -2,7 +2,9 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { signIn, refreshToken as refreshTokenApi } from "../api";
 
-const authStorage = JSON.parse(localStorage.getItem("auth") as string);
+const authStorage: AuthState = JSON.parse(
+  localStorage.getItem("auth") as string
+);
 
 export interface AuthState {
   access_token: string;
@@ -49,7 +51,7 @@ export const AuthSlice = createSlice({
       return action.payload;
     },
     logOut: (state) => {
-      state = initialState;
+      return initialState;
     },
   },
   extraReducers: (builder) => {

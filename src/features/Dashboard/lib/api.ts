@@ -1,16 +1,16 @@
 import axios from "axios";
-import { ArtistData } from "./slices/artistsSlice";
 
 const authStorage = JSON.parse(localStorage.getItem("auth") as string);
 
 export const getArtists = async (
   artistName: string,
   limit: number,
-  offset: number
+  offset: number,
+  token: string
 ) => {
   const { data } = await axios.get("https://api.spotify.com/v1/search", {
     headers: {
-      Authorization: `Bearer ${authStorage?.access_token}`,
+      Authorization: `Bearer ${token}`,
     },
     params: {
       q: artistName,
@@ -23,6 +23,7 @@ export const getArtists = async (
     name: artist.name,
     image: artist.images[0]?.url,
     followers: artist.followers.total,
+    id: artist.id,
   }));
   return { total: data.artists.total, artists };
 };

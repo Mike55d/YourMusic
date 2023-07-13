@@ -11,10 +11,11 @@ import {
 import NavBar from "../../components/navbar";
 import { makeStyles } from "@mui/styles";
 import Pagination from "@mui/material/Pagination";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Artist, searchArtists } from "./lib/slices/artistsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({
   title: {
@@ -33,7 +34,7 @@ const useStyles = makeStyles({
     color: "#d6f379",
   },
   containerTitle: {
-    paddingTop: 100,
+    paddingTop: 80,
     textAlign: "center",
   },
   subtitle: {
@@ -68,24 +69,30 @@ const useStyles = makeStyles({
       fontFamily: "Montserrat !important",
       fontWeight: 700,
       color: "black",
+      "@media (max-width: 550px)": {
+        fontSize: 12,
+      },
     },
     lineHeight: "2.2 !important",
     width: 120,
     borderRadius: "30px !important",
     backgroundColor: "#d6f379 !important",
+    "@media (max-width: 550px)": {
+      width: 80,
+    },
   },
   container: {
     paddingLeft: 200,
     paddingRight: 200,
     paddingBottom: 80,
-    "@media (max-width: 1300px)": {
+    "@media (min-width: 1000px) and (max-width: 1300px)": {
       paddingLeft: 60,
       paddingRight: 60,
     },
-  },
-  "@media (max-width: 780px)": {
-    paddingLeft: 10,
-    paddingRight: 10,
+    "@media (max-width: 999px)": {
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
   },
   card: {
     "& .MuiPaper-elevation": {
@@ -119,6 +126,11 @@ const useStyles = makeStyles({
     backgroundSize: "cover",
     marginBottom: 15,
   },
+  containerSearch: {
+    "@media (max-width: 999px)": {
+      marginTop: "40px !important",
+    },
+  },
 });
 
 type CardProps = {
@@ -127,6 +139,11 @@ type CardProps = {
 
 const CardComponent = ({ artist }: CardProps) => {
   const classes = useStyles();
+  const navigate = useNavigate();
+
+  const handleClickArtist = () => {
+    navigate(`/artist/${artist.id}`);
+  };
 
   return (
     <>
@@ -138,7 +155,7 @@ const CardComponent = ({ artist }: CardProps) => {
         marginBottom={2}
         className={classes.card}
       >
-        <Card>
+        <Card onClick={handleClickArtist}>
           <CardContent style={{ minHeight: 300 }}>
             <div
               className={classes.imageCard}
@@ -148,7 +165,10 @@ const CardComponent = ({ artist }: CardProps) => {
               }}
             ></div>
             <div style={{ paddingLeft: 5, paddingRight: 5 }}>
-              <Typography sx={{ fontSize: 28, lineHeight: 1, fontWeight:700 }} gutterBottom>
+              <Typography
+                sx={{ fontSize: 28, lineHeight: 1, fontWeight: 700 }}
+                gutterBottom
+              >
                 {artist.name}
               </Typography>
               <Typography sx={{ fontSize: 12 }} gutterBottom>
@@ -170,6 +190,10 @@ const Dashboard = () => {
   const [page, setPage] = useState(1);
   const limit = 4;
 
+  const offset = useMemo(() => {
+    return (page - 1) * limit;
+  }, [page, limit]);
+
   const handleChangePage = (
     event: React.ChangeEvent<unknown>,
     value: number
@@ -182,7 +206,7 @@ const Dashboard = () => {
       searchArtists({
         artistName: search,
         limit,
-        offset: (page - 1) * limit,
+        offset,
       })
     );
   };
@@ -223,12 +247,14 @@ const Dashboard = () => {
             xs={12}
             display="flex"
             justifyContent="center"
+            className={classes.containerSearch}
           >
             <FormControl className={classes.inputSearch} variant="outlined">
               <OutlinedInput
                 placeholder="Buscar artista"
                 id="search"
                 name="search"
+                value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 endAdornment={
                   <InputAdornment position="end">

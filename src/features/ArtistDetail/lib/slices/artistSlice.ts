@@ -1,39 +1,47 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { getArtists } from "../api";
+import { getArtist } from "../api";
 import { refreshToken } from "../../../Login/lib/slices/loginSlice";
 import { RootState } from "../../../../store";
 
-export type Artist = {
-  id:string;
+export type Album = {
+  id: string;
   name: string;
-  image: string;
-  followers: number;
+  imageUrl: string;
+  date: string;
 };
 
 export type ArtistData = {
-  total: number;
-  artists: Artist[];
+  name: string;
+  followers: number;
+  popularity: number;
+  imageUrl: string;
+  totalAlbums: number;
+  albums: Album[];
 };
 
-export type GetArtistsParams = {
-  artistName: string;
+export type GetArtistParams = {
+  artistId: string;
   limit: number;
   offset: number;
 };
 
 const initialState: ArtistData = {
-  total: 0,
-  artists: [],
+  name: "",
+  followers: 0,
+  popularity: 0,
+  imageUrl: "",
+  totalAlbums: 0,
+  albums: [],
 };
 
-export const searchArtists = createAsyncThunk(
-  "artists/search",
-  async ({ artistName, limit, offset }: GetArtistsParams, thunkApi) => {
+export const searchArtist = createAsyncThunk(
+  "artist/get",
+  async ({ artistId, limit, offset }: GetArtistParams, thunkApi) => {
     try {
       const state = thunkApi.getState() as RootState;
-      const data = await getArtists(
-        artistName,
+      const data = await getArtist(
+        artistId,
         limit,
         offset,
         state.auth.access_token
@@ -44,18 +52,18 @@ export const searchArtists = createAsyncThunk(
       if (error.response.status == 401) {
         thunkApi.dispatch(refreshToken());
       }
-      return { total: 0, artists: [] };
+      return initialState;
     }
   }
 );
 
-export const ArtistsSlice = createSlice({
-  name: "artists",
+export const ArtistSlice = createSlice({
+  name: "artist",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(
-      searchArtists.fulfilled,
+      searchArtist.fulfilled,
       (state, action: PayloadAction<ArtistData>) => {
         return action.payload;
       }
@@ -63,4 +71,4 @@ export const ArtistsSlice = createSlice({
   },
 });
 
-export default ArtistsSlice.reducer;
+export default ArtistSlice.reducer;

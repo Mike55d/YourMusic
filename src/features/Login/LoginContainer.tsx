@@ -99,11 +99,13 @@ const LoginContainer = () => {
 
   const handleClick = () => {
     const state = generateRandomString(16);
+    const scope = "user-library-read user-library-modify";
     const spotifyUrl =
       "https://accounts.spotify.com/authorize?" +
       queryString.stringify({
         response_type: "code",
         client_id: client_id,
+        scope,
         redirect_uri: redirect_uri,
         state: state,
       });
@@ -111,10 +113,10 @@ const LoginContainer = () => {
   };
 
   useEffect(() => {
-    if (auth.isAuth || authStorage?.access_token) {
+    if (auth.isAuth) {
       navigate("/home");
     }
-  }, [auth, authStorage]);
+  }, [auth.isAuth]);
 
   return (
     <>

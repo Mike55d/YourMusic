@@ -55,6 +55,7 @@ export const refreshToken = async (refresh_token: string) => {
       },
     }
   );
-  localStorage.setItem("auth", JSON.stringify(data));
+  const authStorage = JSON.parse(localStorage.getItem("auth") as string);
+  localStorage.setItem("auth", JSON.stringify({ ...authStorage, ...data }));
   return data;
 };
