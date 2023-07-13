@@ -11,6 +11,10 @@ import {
 import NavBar from "../../components/navbar";
 import { makeStyles } from "@mui/styles";
 import Pagination from "@mui/material/Pagination";
+import { useEffect, useState } from "react";
+import { Artist, searchArtists } from "./lib/slices/artistsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
 
 const useStyles = makeStyles({
   title: {
@@ -106,19 +110,22 @@ const useStyles = makeStyles({
     },
   },
   imageCard: {
-    backgroundColor: "red",
     width: "100%",
     height: 220,
     "@media (min-width: 900px) and (max-width: 1300px)": {
       height: 160,
     },
-    backgroundImage: 'url("./app-images/img1.png")',
     backgroundPosition: "center",
     backgroundSize: "cover",
+    marginBottom: 15,
   },
 });
 
-const CardComponent = () => {
+type CardProps = {
+  artist: Artist;
+};
+
+const CardComponent = ({ artist }: CardProps) => {
   const classes = useStyles();
 
   return (
@@ -132,19 +139,22 @@ const CardComponent = () => {
         className={classes.card}
       >
         <Card>
-          <CardContent>
+          <CardContent style={{ minHeight: 300 }}>
             <div
               className={classes.imageCard}
               style={{
-                backgroundImage: 'url("./app-images/img1.png")',
+                backgroundImage: `url("${artist.image}")`,
+                backgroundColor: "black",
               }}
             ></div>
-            <Typography sx={{ fontSize: 36 }} gutterBottom>
-              Artist Name
-            </Typography>
-            <Typography sx={{ fontSize: 16 }} gutterBottom>
-              Followers: n~
-            </Typography>
+            <div style={{ paddingLeft: 5, paddingRight: 5 }}>
+              <Typography sx={{ fontSize: 28, lineHeight: 1, fontWeight:700 }} gutterBottom>
+                {artist.name}
+              </Typography>
+              <Typography sx={{ fontSize: 12 }} gutterBottom>
+                Followers: {artist.followers}
+              </Typography>
+            </div>
           </CardContent>
         </Card>
       </Grid>
@@ -154,6 +164,43 @@ const CardComponent = () => {
 
 const Dashboard = () => {
   const classes = useStyles();
+  const [search, setSearch] = useState<string>("");
+  const dispatch = useDispatch<AppDispatch>();
+  const artists = useSelector((state: RootState) => state.artists);
+  const [page, setPage] = useState(1);
+  const limit = 4;
+
+  const handleChangePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+  };
+
+  const refreshSearch = () => {
+    dispatch(
+      searchArtists({
+        artistName: search,
+        limit,
+        offset: (page - 1) * limit,
+      })
+    );
+  };
+
+  const handleClickSearch = () => {
+    if (page == 1) {
+      refreshSearch();
+    } else {
+      setPage(1);
+    }
+  };
+
+  useEffect(() => {
+    if (search) {
+      refreshSearch();
+    }
+  }, [page]);
+
   return (
     <>
       <NavBar />
@@ -182,9 +229,13 @@ const Dashboard = () => {
                 placeholder="Buscar artista"
                 id="search"
                 name="search"
+                onChange={(event) => setSearch(event.target.value)}
                 endAdornment={
                   <InputAdornment position="end">
-                    <Button className={classes.buttonSearch}>
+                    <Button
+                      onClick={handleClickSearch}
+                      className={classes.buttonSearch}
+                    >
                       <span>Search</span>
                     </Button>
                   </InputAdornment>
@@ -192,18 +243,26 @@ const Dashboard = () => {
               />
             </FormControl>
           </Grid>
-          <Grid md={12} sm={12} xs={12} marginTop={5}>
-            <p className={classes.subtitle}>
-              Mostrando 4 resultados de nResultados
-            </p>
-          </Grid>
-          <Grid container md={12} sm={12} xs={12} marginBottom={1}>
-            <CardComponent />
-            <CardComponent />
-            <CardComponent />
-            <CardComponent />
-          </Grid>
-          <Pagination className={classes.pagination} count={10} />
+          {artists.artists.length ? (
+            <>
+              <Grid item md={12} sm={12} xs={12} marginTop={5}>
+                <p className={classes.subtitle}>
+                  Mostrando {limit} resultados de {artists.total}
+                </p>
+              </Grid>
+              <Grid container marginBottom={1}>
+                {artists.artists.map((artist) => (
+                  <CardComponent artist={artist} />
+                ))}
+              </Grid>
+              <Pagination
+                className={classes.pagination}
+                count={Math.floor(artists.total / limit)}
+                onChange={handleChangePage}
+                page={page}
+              />
+            </>
+          ) : null}
         </Grid>
       </div>
     </>

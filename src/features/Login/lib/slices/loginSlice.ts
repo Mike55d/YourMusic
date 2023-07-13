@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { signIn } from "../api";
+import { signIn, refreshToken as refreshTokenApi } from "../api";
+
+const authStorage = JSON.parse(localStorage.getItem("auth") as string);
 
 export interface AuthState {
   access_token: string;
@@ -30,9 +32,18 @@ export const authUser = createAsyncThunk(
   }
 );
 
+export const refreshToken = createAsyncThunk("user/renewToken", async () => {
+  try {
+    const data = await refreshTokenApi(authStorage.refresh_token);
+    return { ...data, isAuth: true };
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 export const AuthSlice = createSlice({
   name: "user",
-  initialState,
+  initialState: authStorage ?? initialState,
   reducers: {
     AuthUser: (state, action: PayloadAction<AuthState>) => {
       return action.payload;

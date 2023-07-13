@@ -11,6 +11,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const client_id = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
 const redirect_uri = process.env.REACT_APP_SPOTIFY_REDIRECT_ROUTE;
+const authStorage = JSON.parse(localStorage.getItem("auth") as string);
 
 const useStyles = makeStyles({
   imageArrow: {
@@ -110,10 +111,10 @@ const LoginContainer = () => {
   };
 
   useEffect(() => {
-    if (auth.isAuth) {
+    if (auth.isAuth || authStorage?.access_token) {
       navigate("/home");
     }
-  }, [auth.isAuth]);
+  }, [auth, authStorage]);
 
   return (
     <>

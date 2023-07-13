@@ -1,13 +1,11 @@
-import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import { RootState } from "../store";
 
 type ProtectRouteProps = { children: JSX.Element };
 
 const ProtectedRoute = ({ children }: ProtectRouteProps) => {
-  const auth = useSelector((state: RootState) => state.auth);
+  const authStorage = JSON.parse(localStorage.getItem("auth") as string);
 
-  if (!auth.isAuth) {
+  if (!authStorage?.access_token) {
     return <Navigate to="/" replace />;
   }
 
