@@ -78,8 +78,6 @@ const NavBar = () => {
     navigate("/");
   };
 
-  console.log();
-
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
